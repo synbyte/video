@@ -8,6 +8,8 @@ export default function Page() {
 
   const handleSubmit = async () => {
     if (!userName) return;
+    fetch(`/api/create-room?room=newroom&participantLimit=4`)
+    console.log('created room')
     const res = await fetch(`/api/get-participant-token?room=newroom&username=${userName}`)
     const data = await res.json()
     const token = data.token

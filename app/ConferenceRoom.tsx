@@ -1,50 +1,52 @@
-// app/ConferenceRoom.tsx
-import {
-  useRemoteParticipants,
-  useParticipants,
-  ConnectionStateToast,
-  useRoomContext,
-  useTracks,
-  GridLayout,
-  ParticipantTile,
-  RoomAudioRenderer,
-} from "@livekit/components-react";
+
+// Updated by EL, tested on my end..working 
+// 9/26/24
+// Take parts you need, forgo other parts you don't need 
+
+
+
 import { useEffect, useState, useRef } from "react";
+import { useRoomContext, useRemoteParticipants, useParticipants, useTracks, GridLayout, ParticipantTile, ConnectionStateToast, RoomAudioRenderer } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import ControlBar from "./ControlBar";
 import { useRouter } from "next/navigation";
+import { addVoiceAssistant, startRecording, speakMessage } from "./VoiceAssistantUtils"; // Import your functions
 
 export default function MyVideoConference(props: any) {
   const remoteParticipants = useRemoteParticipants();
-  const allParticipants = useParticipants();
+  const allParticipants = useParticipants(); // This returns an object or map
   const maxParticipants = props.participantLimit;
   const room = useRoomContext();
   const participantCountRef = useRef<Set<string>>(new Set());
   const [localID, setLocalID] = useState<string>("null");
   const r = useRouter();
+  const hasRun = useRef(false);
+  
+  const sessionDuration = props.sessionDuration || 20; // default 20-minute session
+  const [timeLeft, setTimeLeft] = useState(sessionDuration * 60); // Convert to seconds
 
-  useEffect(() => { // Participant limit logic. Once limit has been reached, local's id doesnt get added to list.
-    const all = allParticipants.length; // Amount of people in room, local and remote
-    console.log("all participants", all); // Print amount of people in room to console
-    if (all <= maxParticipants) { // If room isnt full
-      const localParticipant = allParticipants[0]; // Get local's id
-      setLocalID(localParticipant.identity); // Save locals id to variable
+  // New audio element for the cough sound
+  const coughSound = new Audio('https://cdn.freesound.org/previews/436/436107_729251-lq.mp3'); // Adjust path accordingly
+
+  useEffect(() => {
+    const all = allParticipants.length;
+    if (all <= maxParticipants) {
+      const localParticipant = allParticipants[0];
+      setLocalID(localParticipant.identity);
       if (!participantCountRef.current.has(localParticipant.identity)) {
-        participantCountRef.current.add(localParticipant.identity); // Add id to list if not already there
+        participantCountRef.current.add(localParticipant.identity);
       }
-      console.log("added ", localID, " to list!"); // Log to console that locals id has been added to list
     }
   }, [allParticipants]);
 
-  useEffect(() => { // On disconnect, remove their ID from list
+  useEffect(() => {
     room.on("participantDisconnected", (participant) => {
-      console.log("participant disconnected!!", participant.identity);
       participantCountRef.current.delete(participant.identity);
     });
   }, [remoteParticipants]);
 
-  const participantCount = allParticipants.length; // Amount of people in room, local and remote
-  const isLocalInList = localID // Check if local's id is on list
+  const participantCount = allParticipants.length;
+  const isLocalInList = localID
     ? participantCountRef.current.has(localID)
     : false;
   const tracks = useTracks(
@@ -54,13 +56,51 @@ export default function MyVideoConference(props: any) {
     ],
     { onlySubscribed: false }
   );
-  
+
   useEffect(() => {
     if (participantCount > maxParticipants && !isLocalInList) {
-      // If room is full AND ID is not on list, render full.
       r.push("/full");
     }
   });
+
+  // Introduce the voice assistant and start recording
+  useEffect(() => {
+    if (participantCount > 0) {
+     
+      if(!hasRun.current){
+      addVoiceAssistant(allParticipants); // Pass all participants to the function
+      startRecording(); // Start recording audio
+
+      // Play the cough sound, then speak the message after it finishes
+      coughSound.play().then(() => {
+        speakMessage(
+          "Hi Guys, welcome to your Figbox session. My name is Ifa. Please introduce yourself and start your session. In the meantime, I will take a back seat and learn from both of you."
+        );
+      });
+      hasRun.current = true;
+    }
+    }
+  }, [participantCount]); // Run this effect when the participants change
+
+  // Timer logic for 5-minute reminder
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+
+      if (timeLeft === 5 * 60) {
+        // Play cough sound before the reminder message
+        coughSound.play().then(() => {
+          speakMessage(
+            "Hey, sorry to interrupt, but you have 5 minutes left in this session. This really sounds like an interesting conversation. You can always book another Figbox session. Please note, once the 5 minutes is up, I will stop the session."
+          );
+        });
+      }
+
+      return () => clearTimeout(timer);
+    }
+  }, [timeLeft]);
 
   return (
     <>
