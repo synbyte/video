@@ -12,13 +12,14 @@ logger.setLevel(logging.INFO)
 
 async def entrypoint(ctx: JobContext):
     room = ctx.room
+    
 
     async def on_track_subscribed(track: rtc.Track, publication: rtc.TrackPublication, participant: rtc.Participant):
         if track.kind == rtc.TrackKind.KIND_AUDIO:
             logger.info(f'Audio track subscribed: {track.sid}')
             
             # Open a wave file for writing
-            with wave.open(f'output_{participant.name}.wav', 'wb') as wave_file:
+            with wave.open(f'output_{participant.identity}.wav', 'wb') as wave_file:
                 wave_file.setnchannels(1)  # Mono audio
                 wave_file.setsampwidth(2)  # 16-bit audio
                 wave_file.setframerate(48000)  # Assuming 48kHz sample rate
@@ -34,6 +35,6 @@ async def entrypoint(ctx: JobContext):
         asyncio.create_task(on_track_subscribed(track, publication, participant))
 
     await ctx.connect()
-
+    await room.local_participant.set_name("Ifa")
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, worker_type=WorkerType.ROOM))
