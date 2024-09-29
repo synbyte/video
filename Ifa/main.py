@@ -12,8 +12,12 @@ logger.setLevel(logging.INFO)
 
 async def entrypoint(ctx: JobContext):
     room = ctx.room
+<<<<<<< HEAD
     
 
+=======
+    room.local_participant.name = "Ifa"
+>>>>>>> origin/main
     async def on_track_subscribed(track: rtc.Track, publication: rtc.TrackPublication, participant: rtc.Participant):
         if track.kind == rtc.TrackKind.KIND_AUDIO:
             logger.info(f'Audio track subscribed: {track.sid}')
@@ -37,4 +41,4 @@ async def entrypoint(ctx: JobContext):
     await ctx.connect()
     await room.local_participant.set_name("Ifa")
 if __name__ == "__main__":
-    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, worker_type=WorkerType.ROOM))
+    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint, worker_type=WorkerType.ROOM, agent_name="Ifa"))

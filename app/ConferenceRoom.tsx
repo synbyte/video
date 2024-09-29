@@ -4,9 +4,9 @@
 // Take parts you need, forgo other parts you don't need 
 
 
-
+import '@livekit/components-styles';
 import { useEffect, useState, useRef } from "react";
-import { useRoomContext, useRemoteParticipants, useParticipants, useTracks, GridLayout, ParticipantTile, ConnectionStateToast, RoomAudioRenderer } from "@livekit/components-react";
+import { useRoomContext, useRemoteParticipants, useParticipants, useTracks, GridLayout, ParticipantTile, ParticipantName, ConnectionStateToast, RoomAudioRenderer } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import ControlBar from "./ControlBar";
 import { useRouter } from "next/navigation";
@@ -23,11 +23,12 @@ export default function MyVideoConference(props: any) {
   const hasRun = useRef(false);
   
   const sessionDuration = props.sessionDuration || 20; // default 20-minute session
-  const [timeLeft, setTimeLeft] = useState(sessionDuration * 60); // Convert to seconds
+  const [timeLeft, setTimeLeft] = useState(sessionDuration); 
 
   // New audio element for the cough sound
   const coughSound = new Audio('https://cdn.freesound.org/previews/436/436107_729251-lq.mp3'); // Adjust path accordingly
 
+  // Add local participant to the list
   useEffect(() => {
     const all = allParticipants.length;
     if (all <= maxParticipants) {
@@ -39,6 +40,7 @@ export default function MyVideoConference(props: any) {
     }
   }, [allParticipants]);
 
+  //remove participant from list when they disconnect
   useEffect(() => {
     room.on("participantDisconnected", (participant) => {
       participantCountRef.current.delete(participant.identity);
@@ -65,7 +67,7 @@ export default function MyVideoConference(props: any) {
 
   // Introduce the voice assistant and start recording
   useEffect(() => {
-    if (participantCount > 0) {
+    if (participantCount > 2) { // 2 because we need to include the agent
      
       if(!hasRun.current){
       addVoiceAssistant(allParticipants); // Pass all participants to the function
@@ -73,9 +75,11 @@ export default function MyVideoConference(props: any) {
 
       // Play the cough sound, then speak the message after it finishes
       coughSound.play().then(() => {
+        setTimeout(() => {
         speakMessage(
           "Hi Guys, welcome to your Figbox session. My name is Ifa. Please introduce yourself and start your session. In the meantime, I will take a back seat and learn from both of you."
         );
+      },1000);
       });
       hasRun.current = true;
     }
@@ -86,15 +90,19 @@ export default function MyVideoConference(props: any) {
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setTimeout(() => {
+        if (participantCount > 2){ // 2 because we need to include the agent
         setTimeLeft(timeLeft - 1);
+        }
       }, 1000);
 
       if (timeLeft === 5 * 60) {
         // Play cough sound before the reminder message
         coughSound.play().then(() => {
-          speakMessage(
-            "Hey, sorry to interrupt, but you have 5 minutes left in this session. This really sounds like an interesting conversation. You can always book another Figbox session. Please note, once the 5 minutes is up, I will stop the session."
-          );
+          setTimeout(() => {
+            speakMessage(
+              "Hey, sorry to interrupt, but you have 5 minutes left in this session. This really sounds like an interesting conversation. You can always book another Figbox session. Please note, once the 5 minutes is up, I will stop the session."
+            );
+          }, 1000);
         });
       }
 
@@ -105,7 +113,9 @@ export default function MyVideoConference(props: any) {
   return (
     <>
       <GridLayout tracks={tracks} style={{ height: "calc(100vh)" }}>
-        <ParticipantTile />
+        <ParticipantTile data-lk-theme="defaul" className='border-4 border-slate-600'>
+        <ParticipantName style={{fontSize: "1.2rem", fontWeight: "bold"}} className='text-white bg-slate-500 px-2 py-1 rounded-full font-bold absolute top-5 left-1/2' />
+        </ParticipantTile>
       </GridLayout>
       <ConnectionStateToast />
       <RoomAudioRenderer />
