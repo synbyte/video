@@ -58,6 +58,8 @@ export default function MyVideoConference(props: any) {
     ],
     { onlySubscribed: false }
   );
+  let test = tracks.filter(track => track.participant.identity !=="hey")
+  
 
   useEffect(() => {
     if (participantCount > maxParticipants && !isLocalInList) {
@@ -67,7 +69,7 @@ export default function MyVideoConference(props: any) {
 
   // Introduce the voice assistant and start recording
   useEffect(() => {
-    if (participantCount > 2) { // 2 because we need to include the agent
+    if (participantCount > 1) { // 2 because we need to include the agent
      
       if(!hasRun.current){
       addVoiceAssistant(allParticipants); // Pass all participants to the function
@@ -90,7 +92,7 @@ export default function MyVideoConference(props: any) {
   useEffect(() => {
     if (timeLeft > 0) {
       const timer = setTimeout(() => {
-        if (participantCount > 2){ // 2 because we need to include the agent
+        if (participantCount > 1){ // 2 because we need to include the agent
         setTimeLeft(timeLeft - 1);
         }
       }, 1000);
@@ -113,10 +115,14 @@ export default function MyVideoConference(props: any) {
   return (
     <>
       <GridLayout tracks={tracks} style={{ height: "calc(100vh)" }}>
-        <ParticipantTile data-lk-theme="defaul" className='border-4 border-slate-600'>
-        <ParticipantName style={{fontSize: "1.2rem", fontWeight: "bold"}} className='text-white bg-slate-500 px-2 py-1 rounded-full font-bold absolute top-5 left-1/2' />
+        
+        <ParticipantTile  data-lk-theme="defaul" className='border-2 border-slate-600'>       
+        <ParticipantName style={{fontSize: "1.2rem", fontWeight: "bold"}} className='text-white bg-slate-500 px-3 ring-4 ring-slate-800  rounded-lg font-bold absolute top-5 left-1/2' />
         </ParticipantTile>
+      
       </GridLayout>
+      <GridLayout className='border-2 rounded-full border-slate-600 left-1/2 -translate-x-1/2' style={{position:'absolute', top:0, zIndex:100, height:150, width:150}} tracks={test}><ParticipantTile/></GridLayout>
+ 
       <ConnectionStateToast />
       <RoomAudioRenderer />
       <ControlBar />

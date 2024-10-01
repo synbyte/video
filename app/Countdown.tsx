@@ -21,7 +21,7 @@ export default function Countdown(props: any) {
 
   useEffect(() => {
     const all = remoteParticipants.length;
-    if (all >= 2) { // 2 because we need to include the agent 
+    if (all >= 1) { // 2 because we need to include the agent 
       setShouldStart(true);
     } else {
       setShouldStart(false);
