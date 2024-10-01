@@ -6,7 +6,7 @@
 
 import '@livekit/components-styles';
 import { useEffect, useState, useRef } from "react";
-import { useRoomContext, useRemoteParticipants, useParticipants, useTracks, GridLayout, ParticipantTile, ParticipantName, ConnectionStateToast, RoomAudioRenderer } from "@livekit/components-react";
+import { useVoiceAssistant,BarVisualizer,useRoomContext, useRemoteParticipants, useParticipants, useTracks, GridLayout, ParticipantTile, ParticipantName, ConnectionStateToast, RoomAudioRenderer } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import ControlBar from "./ControlBar";
 import { useRouter } from "next/navigation";
@@ -30,7 +30,8 @@ export default function MyVideoConference(props: any) {
 
   // Add local participant to the list
   useEffect(() => {
-    const all = allParticipants.length;
+    const all = allParticipants.filter(p => !p.isAgent);
+    
     if (all <= maxParticipants) {
       const localParticipant = allParticipants[0];
       setLocalID(localParticipant.identity);
@@ -47,7 +48,7 @@ export default function MyVideoConference(props: any) {
     });
   }, [remoteParticipants]);
 
-  const participantCount = allParticipants.length;
+  const participantCount = allParticipants.filter(p => !p.isAgent).length;
   const isLocalInList = localID
     ? participantCountRef.current.has(localID)
     : false;
@@ -58,7 +59,8 @@ export default function MyVideoConference(props: any) {
     ],
     { onlySubscribed: false }
   );
-  let test = tracks.filter(track => track.participant.identity !=="hey")
+  let participantTracks = tracks.filter(track => !track.participant.isAgent)
+  let agentTrack = tracks.filter(track => track.participant.isAgent)
   
 
   useEffect(() => {
@@ -114,18 +116,35 @@ export default function MyVideoConference(props: any) {
 
   return (
     <>
-      <GridLayout tracks={tracks} style={{ height: "calc(100vh)" }}>
-        
+      <GridLayout tracks={participantTracks} style={{ height: "calc(100vh)" }}>
+        <>
         <ParticipantTile  data-lk-theme="defaul" className='border-2 border-slate-600'>       
-        <ParticipantName style={{fontSize: "1.2rem", fontWeight: "bold"}} className='text-white bg-slate-500 px-3 ring-4 ring-slate-800  rounded-lg font-bold absolute top-5 left-1/2' />
+        <ParticipantName style={{fontSize: "1.2rem", fontWeight: "bold"}} className='text-white bg-slate-500 px-3 ring-4 ring-slate-800  rounded-lg font-bold absolute top-5 left-1/4' />
         </ParticipantTile>
-      
+        
+        </>
       </GridLayout>
-      <GridLayout className='border-2 rounded-full border-slate-600 left-1/2 -translate-x-1/2' style={{position:'absolute', top:0, zIndex:100, height:150, width:150}} tracks={test}><ParticipantTile/></GridLayout>
+      <GridLayout className='border-2 rounded-full border-slate-600 left-1/2 -translate-x-1/2' style={{position:'absolute', top:0, zIndex:100, height:150, width:150}} tracks={agentTrack}>
+      <>
+      <ParticipantTile/>
+      </>
+      </GridLayout>
  
       <ConnectionStateToast />
       <RoomAudioRenderer />
       <ControlBar />
     </>
+  );
+}
+
+function SimpleVoiceAssistant() {
+  const { state, audioTrack } = useVoiceAssistant();
+  return (
+    <BarVisualizer
+      state={state}
+      barCount={7}
+      trackRef={audioTrack}
+      style={{ width: '75vw', height: '300px' }}
+    />
   );
 }

@@ -20,8 +20,8 @@ export default function Countdown(props: any) {
   const [roomDuration, setRoomDuration] = useState(props.duration);
 
   useEffect(() => {
-    const all = remoteParticipants.length;
-    if (all >= 1) { // 2 because we need to include the agent 
+    const all = remoteParticipants.filter(p => !p.isAgent).length;
+    if (all >= 1) { 
       setShouldStart(true);
     } else {
       setShouldStart(false);
