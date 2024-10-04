@@ -39,6 +39,7 @@ export default function Countdown(props: any) {
         trailStrokeWidth={6}
         isPlaying={shouldStart}
         duration={roomDuration}
+        initialRemainingTime={500}
         colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
         colorsTime={[7, 5, 2, 0]}
         onComplete={deleteRoom}

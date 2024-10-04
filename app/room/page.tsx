@@ -10,7 +10,7 @@ import Countdown from "../Countdown";
 
 export default function Page() {
   const [token, setToken] = useState("");
-  const [roomDuration, setRoomDuration] = useState(20 * 60); // 30
+  const [roomDuration, setRoomDuration] = useState(20 * 60); // 20
   const [maxParticipants, setMaxParticipants] = useState(4); // Max number of participants allowed
   const roomRef = useRef<HTMLDivElement | null>(null);
   const searchParams = useSearchParams();
@@ -38,7 +38,7 @@ export default function Page() {
       style={{ height: "100dvh" }}
       ref={roomRef}
     ><Countdown  duration={roomDuration} />
-      <ConferenceRoom sessionDuration={roomDuration} participantLimit={maxParticipants} />
+      <ConferenceRoom participantLimit={maxParticipants} />
      
     </LiveKitRoom>
   );
