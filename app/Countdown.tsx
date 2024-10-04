@@ -14,20 +14,45 @@ const children = ({ remainingTime }: any) => {
   return `${minutes}:${seconds}`;
 };
 
+const saveStartTime = async () => {
+  await fetch('/api/timer', {method:'POST'})
+}
+
+const fetchStartTime = async () => {
+  const response = await fetch(`/api/timer`);
+  const data = await response.json();
+  return data.startTime;
+};
+
 export default function Countdown(props: any) {
   const remoteParticipants = useRemoteParticipants();
   const [shouldStart, setShouldStart] = useState(false);
   const [roomDuration, setRoomDuration] = useState(props.duration);
+  const [remainingTime, setRemainingTime] = useState<number>()
 
   useEffect(() => {
     const all = remoteParticipants.filter(p => !p.isAgent).length;
     if (all >= 1) { 
       setShouldStart(true);
+      saveStartTime();
+      console.log('started and time saved')
     } else {
       setShouldStart(false);
+      console.log('DISARMING')
     }
-  });
+  },[remoteParticipants]);
+  useEffect(() => {
+    const initializeTimer = async () => {
+      const startTime = await fetchStartTime();
+      const currentTime = Date.now();
+      const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+      setRemainingTime(props.duration - elapsedTime);
+    };
 
+    if (shouldStart) {
+      initializeTimer();
+    }
+  }, [shouldStart]);
   useEffect(() => {
     setRoomDuration(props.duration);
   }, [props.duration]);
@@ -39,7 +64,7 @@ export default function Countdown(props: any) {
         trailStrokeWidth={6}
         isPlaying={shouldStart}
         duration={roomDuration}
-        initialRemainingTime={500}
+        initialRemainingTime={remainingTime}
         colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
         colorsTime={[7, 5, 2, 0]}
         onComplete={deleteRoom}
