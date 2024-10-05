@@ -25,6 +25,11 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+.participant-tile[data-lk-speaking="true"] {
+ /* Example glowing effect */
+  border:1px solid #00b7ff;
+  box-shadow: 0 0 10px 5px #4c00ff;
+}
 
 @layer utilities {
   .text-balance {
