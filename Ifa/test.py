@@ -1,43 +1,44 @@
-import logging
 import asyncio
-import wave
+import logging
+
 from dotenv import load_dotenv
 from livekit import rtc
-from livekit.agents import JobContext, WorkerOptions, WorkerPermissions, WorkerType, cli
+from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
 from livekit.plugins import cartesia
 
 load_dotenv()
 
-logger = logging.getLogger("my-worker")
+logger = logging.getLogger("cartesia-tts-demo")
 logger.setLevel(logging.INFO)
 
-async def entrypoint(ctx: JobContext):
-    room = ctx.room
-    
-    async def on_track_subscribed(track: rtc.Track, publication: rtc.TrackPublication, participant: rtc.Participant):
-        if track.kind == rtc.TrackKind.KIND_AUDIO:
-            logger.info(f'Audio track subscribed: {track.sid}')
-            
-            # Open a wave file for writing
-            with wave.open(f'output_{participant.identity}.wav', 'wb') as wave_file:
-                wave_file.setnchannels(1)  # Mono audio
-                wave_file.setsampwidth(2)  # 16-bit audio
-                wave_file.setframerate(48000)  # Assuming 48kHz sample rate
-                
-                async for audio_frame in rtc.AudioStream(track):
-                    # Write the raw audio data to the wave file
-                    wave_file.writeframes(audio_frame.frame.data)
 
-            logger.info(f'Finished writing audio for track: {track.sid}')
+async def entrypoint(job: JobContext):
+    logger.info("starting tts example agent")
 
-    @room.on("track_subscribed")
-    def track_subscribed_handler(track: rtc.Track, publication: rtc.TrackPublication, participant: rtc.Participant):
-        asyncio.create_task(on_track_subscribed(track, publication, participant))
-    
-    await ctx.connect()
+    tts = cartesia.TTS(
+        speed="fastest",
+        emotion=["surprise:highest"],
+        voice="820a3788-2b37-4d21-847a-b65d8a68c99a"
+    )
 
-    
+    source = rtc.AudioSource(tts.sample_rate, tts.num_channels)
+    track = rtc.LocalAudioTrack.create_audio_track("agent-mic", source)
+    options = rtc.TrackPublishOptions()
+    options.source = rtc.TrackSource.SOURCE_MICROPHONE
 
-    await room.local_participant.set_name("Ifa")
+    await job.connect(auto_subscribe=AutoSubscribe.SUBSCRIBE_NONE)
+    publication = await job.room.local_participant.publish_track(track, options)
+    await publication.wait_for_subscription()
+
+    logger.info('Saying "Hello!"')
+    async for output in tts.synthesize("Welcome to your Figbox session! My name is eefa A.I.. Please introduce yourself and start your session. In the meantime, I will keep time and start upload both of your thoughts to the cloud in order to learn your cognitive habits. Let me know if you need anything!"):
+        await source.capture_frame(output.frame)
+
+    await asyncio.sleep(4)
+    logger.info('Saying "Goodbye."')
+    async for output in tts.synthesize("Goodbye I hope to see you again soon."):
+        await source.capture_frame(output.frame)
+
+
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))

@@ -31,14 +31,15 @@ async def entrypoint(job: JobContext):
 
             logger.info(f'Finished writing audio for track: {track.sid}')
     async def on_participant_connected(participant:rtc.Participant):
-        if len(room.remote_participants) == 2:
+        if len(room.remote_participants) > 1:
             for p in room.remote_participants:
-                async for output in tts.synthesize(f"Welcome in {p}!"):
+                await asyncio.sleep(1)
+                async for output in tts.synthesize(f"Hello {p}!"):
                     await source.capture_frame(output.frame)
-        async for output in tts.synthesize("Welcome to your Figbox session! My name is Ifa. Please introduce yourself and start your session. In the meantime, I will take a back seat and learn from both of you."):
+        async for output in tts.synthesize("Welcome to your Figbox session! My name is eefa . Please introduce yourself and begin your conversation. In the meantime, I will keep time and start uploading both of your thoughts to the cloud  to learn your cognitive habits. Let me know if you need anything!"):
             await source.capture_frame(output.frame)
-        await asyncio.sleep(900) # Warning after 15 minutes
-        async for output in tts.synthesize("Hey, sorry to interrupt, but you have 5 minutes left in this session. This really sounds like an interesting conversation. You can always book another Figbox session. Please note, once the 5 minutes is up, I will stop the session."):
+        await asyncio.sleep(120) # Warning after 15 minutes
+        async for output in tts.synthesize("Hey, I noticed you're discussing how a non-tech person can start learning about AI. I have a suggestion, another good suggestion, Emmanuel, would be to take a short bootcamp course."):
             await source.capture_frame(output.frame)
 
     @room.on("track_subscribed")
@@ -52,8 +53,9 @@ async def entrypoint(job: JobContext):
     logger.info("starting tts example  agent")
 
     tts = cartesia.TTS(
-        speed="normal",
-        emotion=["surprise:highest"]
+        speed="slow",
+        emotion=["positivity"],
+        #voice="5619d38c-cf51-4d8e-9575-48f61a280413"
     )
 
     source = rtc.AudioSource(tts.sample_rate, tts.num_channels)
