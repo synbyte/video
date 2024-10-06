@@ -39,11 +39,11 @@ export default function Countdown(props: any) {
         trailStrokeWidth={6}
         isPlaying={shouldStart}
         duration={roomDuration}
-        colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
-        colorsTime={[7, 5, 2, 0]}
+        colors={["#004777", "#F7B801", "#EA0101"]}
+        colorsTime={[1200,300, 0]}
         onComplete={deleteRoom}
       >
-        {children}
+       
       </CountdownCircleTimer>
     </span>
   );

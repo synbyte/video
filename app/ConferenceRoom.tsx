@@ -66,7 +66,7 @@ export default function MyVideoConference(props: any) {
 
 
   return (
-    <>
+    <div>
       <GridLayout tracks={participantTracks} style={{ height: "calc(100vh)" }}>
         <>
           <ParticipantTile className='border-2 border-slate-600'>
@@ -86,7 +86,7 @@ export default function MyVideoConference(props: any) {
       <ConnectionStateToast />
       <RoomAudioRenderer />
       <ControlBar />
-    </>
+    </div>
   );
 }
 
