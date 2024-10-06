@@ -4,9 +4,13 @@ import { useRouter } from "next/navigation"
 
 export default function Page() {
   const [userName, setUserName] = useState('');
-  const [room, setRoom] = useState('default')
+  const [room, setRoom] = useState()
   const router = useRouter();
 
+  function handleRoom() {
+    setRoom(event.target.value)
+  }
+  
   const handleSubmit = async () => {
     if (!userName) return;
     //fetch(`/api/create-room?room=newroom&participantLimit=4`)
@@ -27,9 +31,14 @@ export default function Page() {
         </div>
         
         <input id="name" onChange={(e) => setUserName(e.target.value)} placeholder="Enter your name" type="text" className="bg-slate-900 p-1 mx-2 ring-2 ring-purple-900 rounded-md text-slate-100" />
-        
-        <input id="room" onChange={(e) => setRoom(e.target.value)} placeholder="Enter room name" type="text" className="bg-slate-900 p-1 mx-2 ring-2 ring-purple-900 rounded-md text-slate-100" />
-        <button onClick={handleSubmit} className='bg-slate-800 rounded-md ring-2 ring-purple-900 w-1/2 mx-auto'>Enter</button>
+        <select value={room} onChange={(e) => setRoom(e.target.value)} className="bg-slate-900 p-1 mx-2 ring-2 ring-purple-900 rounded-md text-slate-100" name="" id=""><option value="room1">room1</option>
+        <option value="room2">room2</option>
+        <option value="room3">room3</option>
+        <option value="room4">room4</option>
+        <option value="room5">room5</option>
+        <option value="room6">room6</option>
+        </select>
+       <button onClick={handleSubmit} className='bg-slate-800 rounded-md ring-2 ring-purple-900 w-1/2 mx-auto'>Enter</button>
       </div>
     </div>
   )
