@@ -7,10 +7,6 @@ export default function Page() {
   const [room, setRoom] = useState()
   const router = useRouter();
 
-  function handleRoom() {
-    setRoom(event.target.value)
-  }
-  
   const handleSubmit = async () => {
     if (!userName) return;
     //fetch(`/api/create-room?room=newroom&participantLimit=4`)
