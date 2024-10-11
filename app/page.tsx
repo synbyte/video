@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 
 export default function Page() {
   const [userName, setUserName] = useState('');
-  const [room, setRoom] = useState()
+  const [room, setRoom] = useState<string>('room1')
   const router = useRouter();
 
   const handleSubmit = async () => {
