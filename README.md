@@ -14,7 +14,7 @@
 
 # Set Environment Variables
 
-## In the root directory (/video) create 2 files: ".env.local" and ".env"
+## In the root directory (/video) rename ".env.local.example" to ".env.local" and ".env.example" to ".env"
 
 Get your **LiveKit** API **key**, API **secret**, and **URL**, then place them inside "**.env.local**" like this :
 

@@ -72,17 +72,17 @@ async def entrypoint(job: JobContext):
 
     logger.info("starting tts example  agent")
 
-    tts = openai.TTS(
+    """ tts = openai.TTS(
         model="tts-1",
         voice="alloy",
         api_key="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"
-    )
+    ) """
 
-    """ tts = cartesia.TTS(
+    tts = cartesia.TTS(
         speed="slow",
         emotion=["positivity"],
         #voice="5619d38c-cf51-4d8e-9575-48f61a280413"
-    ) """
+    )
 
     source = rtc.AudioSource(tts.sample_rate, tts.num_channels)
     track = rtc.LocalAudioTrack.create_audio_track("agent-mic", source)
