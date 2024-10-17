@@ -85,7 +85,7 @@ To start agent type:
 
 Sometimes when testing, when you disconnect from a room and join again, the agent won't join because the room hasn't had a chance to **shutdown** and **startup** again. This is when you can choose a different room to connect to, OR stop the agent **(CTRL-C)** and use the this command to tell the agent which room to connect to, for example "room1":
 
-    python main.dev connect --room room1
+    python main.py connect --room room1
 
 ## STEP 2) Start the platform
 Open a **new** **terminal** by pressing **(CTRL+SHIFT+~)**, the other terminal should be busy running the agent.  Make sure you are in the **root** directory (/video), and run:
