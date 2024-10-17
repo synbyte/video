@@ -1,6 +1,6 @@
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/synbyte/video)
 
-  
+[LOOM GUIDE](https://www.loom.com/share/508ebadff2ee443b8d7777b56da9d294?sid=6323f21e-5ac6-46cc-b561-a1993474c98b)
 
 # Getting Started
 
