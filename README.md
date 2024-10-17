@@ -48,7 +48,7 @@ CARTESIA_API_KEY=
 
 ```
 
-## *Notice that in ".env.local" its "**NEXT_PLUBLIC**_LIVEKIT_URL" and in ".env" its just "LIVEKIT_URL"*
+
 
   
 
