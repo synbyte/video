@@ -15,7 +15,7 @@ export default function Page() {
     const data = await res.json()
     const token = data.token
     if (token) {
-      router.push(`/room?token=${token}`)
+      router.push(`/room?room=${room}&token=${token}`)
     } else {
       alert('Error getting token');
     }

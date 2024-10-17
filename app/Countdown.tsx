@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 const deleteRoom = () => {
   console.log("deleting room");
-  fetch(`/api/delete-room?room=newroom7`);
+  fetch(`/api/delete-room?room=newroom21`);
 };
 
 const children = ({ remainingTime }: any) => {
