@@ -9,7 +9,7 @@ import wave
 from dotenv import load_dotenv
 from livekit import rtc
 from livekit.agents import AutoSubscribe, JobContext, WorkerOptions, cli
-from livekit.plugins import openai, cartesia
+from livekit.plugins import cartesia
 from generations import generate_greeting_variation, random_joke, generate_closing_variation
 
 load_dotenv()

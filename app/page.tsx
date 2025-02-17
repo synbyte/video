@@ -35,7 +35,7 @@ export default function Page() {
         <option value="room6">room6</option>
         </select>
        <button onClick={handleSubmit} className='bg-slate-800 rounded-md ring-2 ring-purple-900 w-1/2 mx-auto'>Enter</button>
-       <p className="text-center text-slate-600 tracking-wide uppercase text-xs">Beta 10.6.24</p>
+       <p className="text-center text-slate-600 tracking-wide uppercase text-xs">Alpha 2.16.1</p>
       </div>
     </div>
   )
