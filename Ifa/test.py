@@ -63,12 +63,16 @@ async def entrypoint(job: JobContext):
                 async for output in tts.synthesize("Hmm, it looks like Red wont be attending the session. Ill send an email to let them know you were present. To create a better experience, Ill find another user who matches your needs and has a high attendance score. Sorry for the inconvinience, and I look forward to seeing you in future sessions!"):
                     await source.capture_frame(output.frame)
 
-    async def on_participant_connected(participant: rtc.Participant):
+    async def handle_participants():
+        logger.info(f"Checking participants. Current count: {len(room.remote_participants)}")
+        
         if len(room.remote_participants) == 1:
             # Start single participant flow
-            asyncio.create_task(single_participant_flow(participant.identity))
+            participant = next(iter(room.remote_participants))
+            await single_participant_flow(participant.identity)
         elif len(room.remote_participants) > 1 and not extended_wait_complete:
             # Both participants are here, proceed with original flow
+            logger.info("Starting multi-participant flow")
             for p in room.remote_participants:
                 await asyncio.sleep(1)
                 async for output in tts.synthesize(f"Hello {p.identity}!"):
@@ -85,15 +89,20 @@ async def entrypoint(job: JobContext):
             async for output in tts.synthesize(generate_closing_variation()):
                 await source.capture_frame(output.frame)
 
+    async def on_participant_connected(participant: rtc.Participant):
+        logger.info(f"Participant connected: {participant.identity}")
+        await asyncio.sleep(2)  # Small delay to ensure room state is updated
+        await handle_participants()
+
     @room.on("track_subscribed")
     def track_subscribed_handler(track: rtc.Track, publication: rtc.TrackPublication, participant: rtc.Participant):
         asyncio.create_task(on_track_subscribed(track, publication, participant))
     
     @room.on("participant_connected")
-    def participant_connected_handler(participant:rtc.Participant):
+    def participant_connected_handler(participant: rtc.Participant):
         asyncio.create_task(on_participant_connected(participant))
 
-    logger.info("starting tts example  agent")
+    logger.info("starting tts example agent")
 
     """ tts = openai.TTS(
         model="tts-1",
@@ -115,6 +124,13 @@ async def entrypoint(job: JobContext):
     await job.connect()
     publication = await job.room.local_participant.publish_track(track, options)
     await publication.wait_for_subscription()
+    
+    # Check for existing participants after connecting
+    await handle_participants()
+
+    # Keep the agent running
+    while True:
+        await asyncio.sleep(1)
 
 
 if __name__ == "__main__":
